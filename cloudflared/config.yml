@@ -1,0 +1,11 @@
+tunnel: plex-tunnel
+credentials-file: /etc/cloudflared/plex-tunnel.json
+
+ingress:
+  - hostname: plex.theovauvilliers.com
+    service: http://localhost:32400
+
+  - hostname: overseerr.theovauvilliers.com
+    service: http://localhost:5055
+
+  - service: http_status:404

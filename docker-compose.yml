@@ -32,7 +32,8 @@ services:
             - /opt/docker/plex/gluetun:/gluetun
         ports:
             - 8080:8080 # qBittorrent WebUI
-            - 9117:9117 # Jackett WebUI
+            - 9696:9696 # Prowlarr WebUI
+            - 8191:8191 # Byparr WebUI
             - 6881:6881 # Torrent TCP
             - 6881:6881/udp # Torrent UDP
         networks:
@@ -88,46 +89,28 @@ services:
         networks:
             - vpn
         restart: unless-stopped
-    
-#    jackett:
-#        image: lscr.io/linuxserver/jackett:latest
-#        container_name: jackett
-#        network_mode: "service:gluetun"
-#        depends_on:
-#            - gluetun
-#        environment:
-#            - PUID=${PUID}
-#            - PGID=${PGID}
-#            - TZ=${TZ}
-#            - AUTO_UPDATE=true
-#        volumes:
-#            - /opt/docker/plex/jackett:/config
-#            - /mnt/media/downloads:/downloads
-#        restart: unless-stopped
 
     prowlarr:
         image: lscr.io/linuxserver/prowlarr:latest
         container_name: prowlarr
+        network_mode: "service:gluetun"
+        depends_on:
+            - gluetun
+            - byparr
         environment:
-        - PUID=${PUID}
-        - PGID=${PGID}
-        - TZ=${TZ}
+            - PUID=${PUID}
+            - PGID=${PGID}
+            - TZ=${TZ}
         volumes:
-        - /opt/docker/plex/prowlarr:/config
-        ports:
-        - 9696:9696
-        networks:
-        - vpn  # ou shared si tu le remets
+            - /opt/docker/plex/prowlarr:/config
         restart: unless-stopped
 
-    flaresolverr:
-        image: flaresolverr/flaresolverr:latest
-        container_name: flaresolverr
-        environment:
-            - LOG_LEVEL=info
-            - CAPTCHA_SOLVER=none
-        ports:
-            - 8191:8191
+    byparr:
+        image: ghcr.io/thephaseless/byparr:latest
+        container_name: byparr
+        network_mode: "service:gluetun"
+        depends_on:
+            - gluetun
         restart: unless-stopped
 
     overseerr:
@@ -144,6 +127,15 @@ services:
         networks:
             - vpn
         restart: unless-stopped
+    
+    cloudflared:
+        image: cloudflare/cloudflared:latest
+        container_name: cloudflared
+        restart: unless-stopped
+        network_mode: host
+        volumes:
+            - /opt/docker/plex/cloudflared:/etc/cloudflared
+        command: tunnel run plex-tunnel
 
 networks:
     vpn:

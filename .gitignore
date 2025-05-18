@@ -22,15 +22,15 @@ sonarr/*
 radarr/*
 !radarr/.gitkeep
 
-# Remove when prowlarr works
-jackett/*
-!jackett/.gitkeep
-
 prowlarr/*
 !prowlarr/.gitkeep
 
 overseerr/*
 !overseerr/.gitkeep
+
+cloudflared/*
+!cloudflared/.gitkeep
+!cloudflared/config.yml
 
 # Git already gitignore this folder, but gitignore just in case
 .git/*
