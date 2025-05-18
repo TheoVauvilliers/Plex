@@ -1,0 +1,149 @@
+services:
+    plex:
+        image: lscr.io/linuxserver/plex:latest
+        container_name: plex
+        network_mode: host
+        environment:
+            - PUID=${PUID}
+            - PGID=${PGID}
+            - TZ=${TZ}
+            - VERSION=docker
+            - PLEX_CLAIM=${PLEX_CLAIM}
+        volumes:
+            - /opt/docker/plex/app:/config
+            - /mnt/media/series:/series
+            - /mnt/media/movies:/movies
+        restart: unless-stopped
+
+    gluetun:
+        image: qmcgaw/gluetun
+        container_name: gluetun
+        cap_add:
+            - NET_ADMIN
+        devices:
+            - /dev/net/tun
+        environment:
+            - VPN_SERVICE_PROVIDER=protonvpn
+            - OPENVPN_USER=${OPENVPN_USER}
+            - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+            - SERVER_COUNTRIES=Netherlands
+            - TZ=${TZ}
+        volumes:
+            - /opt/docker/plex/gluetun:/gluetun
+        ports:
+            - 8080:8080 # qBittorrent WebUI
+            - 9117:9117 # Jackett WebUI
+            - 6881:6881 # Torrent TCP
+            - 6881:6881/udp # Torrent UDP
+        networks:
+            - vpn
+        restart: unless-stopped
+
+    qbittorrent:
+        image: lscr.io/linuxserver/qbittorrent:latest
+        container_name: qbittorrent
+        network_mode: "service:gluetun"
+        depends_on:
+            - gluetun
+        environment:
+            - PUID=${PUID}
+            - PGID=${PGID}
+            - TZ=${TZ}
+            - WEBUI_PORT=8080
+        volumes:
+            - /opt/docker/plex/qbittorrent/config:/config
+            - /mnt/media/downloads:/downloads
+        restart: unless-stopped
+
+    sonarr:
+        image: lscr.io/linuxserver/sonarr:latest
+        container_name: sonarr
+        environment:
+            - PUID=${PUID}
+            - PGID=${PGID}
+            - TZ=${TZ}
+        volumes:
+            - /opt/docker/plex/sonarr:/config
+            - /mnt/media/series:/series
+            - /mnt/media/downloads:/downloads
+        ports:
+            - 8989:8989
+        networks:
+            - vpn
+        restart: unless-stopped
+
+    radarr:
+        image: lscr.io/linuxserver/radarr:latest
+        container_name: radarr
+        environment:
+            - PUID=${PUID}
+            - PGID=${PGID}
+            - TZ=${TZ}
+        volumes:
+            - /opt/docker/plex/radarr:/config
+            - /mnt/media/movies:/movies
+            - /mnt/media/downloads:/downloads
+        ports:
+            - 7878:7878
+        networks:
+            - vpn
+        restart: unless-stopped
+    
+#    jackett:
+#        image: lscr.io/linuxserver/jackett:latest
+#        container_name: jackett
+#        network_mode: "service:gluetun"
+#        depends_on:
+#            - gluetun
+#        environment:
+#            - PUID=${PUID}
+#            - PGID=${PGID}
+#            - TZ=${TZ}
+#            - AUTO_UPDATE=true
+#        volumes:
+#            - /opt/docker/plex/jackett:/config
+#            - /mnt/media/downloads:/downloads
+#        restart: unless-stopped
+
+    prowlarr:
+        image: lscr.io/linuxserver/prowlarr:latest
+        container_name: prowlarr
+        environment:
+        - PUID=${PUID}
+        - PGID=${PGID}
+        - TZ=${TZ}
+        volumes:
+        - /opt/docker/plex/prowlarr:/config
+        ports:
+        - 9696:9696
+        networks:
+        - vpn  # ou shared si tu le remets
+        restart: unless-stopped
+
+    flaresolverr:
+        image: flaresolverr/flaresolverr:latest
+        container_name: flaresolverr
+        environment:
+            - LOG_LEVEL=info
+            - CAPTCHA_SOLVER=none
+        ports:
+            - 8191:8191
+        restart: unless-stopped
+
+    overseerr:
+        image: lscr.io/linuxserver/overseerr:latest
+        container_name: overseerr
+        environment:
+            - PUID=${PUID}
+            - PGID=${PGID}
+            - TZ=${TZ}
+        volumes:
+            - /opt/docker/plex/overseerr:/config
+        ports:
+            - 5055:5055
+        networks:
+            - vpn
+        restart: unless-stopped
+
+networks:
+    vpn:
