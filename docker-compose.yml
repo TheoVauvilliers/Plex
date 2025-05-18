@@ -36,6 +36,8 @@ services:
             - 8191:8191 # Byparr WebUI
             - 6881:6881 # Torrent TCP
             - 6881:6881/udp # Torrent UDP
+            - 7878:7878 # Radarr WebUI
+            - 8989:8989 # Sonarr WebUI
         networks:
             - vpn
         restart: unless-stopped
@@ -59,6 +61,9 @@ services:
     sonarr:
         image: lscr.io/linuxserver/sonarr:latest
         container_name: sonarr
+        network_mode: "service:gluetun"
+        depends_on:
+            - gluetun
         environment:
             - PUID=${PUID}
             - PGID=${PGID}
@@ -67,15 +72,14 @@ services:
             - /opt/docker/plex/sonarr:/config
             - /mnt/media/series:/series
             - /mnt/media/downloads:/downloads
-        ports:
-            - 8989:8989
-        networks:
-            - vpn
         restart: unless-stopped
 
     radarr:
         image: lscr.io/linuxserver/radarr:latest
         container_name: radarr
+        network_mode: "service:gluetun"
+        depends_on:
+            - gluetun
         environment:
             - PUID=${PUID}
             - PGID=${PGID}
@@ -84,10 +88,6 @@ services:
             - /opt/docker/plex/radarr:/config
             - /mnt/media/movies:/movies
             - /mnt/media/downloads:/downloads
-        ports:
-            - 7878:7878
-        networks:
-            - vpn
         restart: unless-stopped
 
     prowlarr:
