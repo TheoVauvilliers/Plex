@@ -24,9 +24,10 @@ services:
             - /dev/net/tun
         environment:
             - VPN_SERVICE_PROVIDER=protonvpn
-            - OPENVPN_USER=${OPENVPN_USER}
+            - OPENVPN_USER=${OPENVPN_USER}+pmp
             - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
             - SERVER_COUNTRIES=Netherlands
+            - VPN_PORT_FORWARDING=on
             - TZ=${TZ}
         volumes:
             - /opt/docker/plex/gluetun:/gluetun
