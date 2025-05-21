@@ -10,11 +10,6 @@ gluetun/
 
 qbittorrent/*
 !qbittorrent/.gitkeep
-!qbittorrent/config/
-qbittorrent/config/*
-!qbittorrent/config/qBittorrent/
-qbittorrent/config/qBittorrent/*
-!qbittorrent/config/qBittorrent/qBittorrent.conf
 
 sonarr/*
 !sonarr/.gitkeep

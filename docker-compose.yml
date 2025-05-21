@@ -13,6 +13,8 @@ services:
             - /opt/docker/plex/app:/config
             - /mnt/media/series:/series
             - /mnt/media/movies:/movies
+        devices:
+            - /dev/dri:/dev/dri
         restart: unless-stopped
 
     gluetun:
