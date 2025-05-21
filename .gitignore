@@ -27,6 +27,9 @@ cloudflared/*
 !cloudflared/.gitkeep
 !cloudflared/config.yml
 
+homarr/*
+!homarr/.gitkeep
+
 # Git already gitignore this folder, but gitignore just in case
 .git/*
 

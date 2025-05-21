@@ -134,11 +134,28 @@ services:
     cloudflared:
         image: cloudflare/cloudflared:latest
         container_name: cloudflared
-        restart: unless-stopped
         network_mode: host
         volumes:
             - /opt/docker/plex/cloudflared:/etc/cloudflared
         command: tunnel run plex-tunnel
+        restart: unless-stopped
+
+    homarr:
+        image: ghcr.io/homarr-labs/homarr:latest
+        container_name: homarr
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /opt/docker/plex/homarr:/appdata
+        environment:
+            - PUID=${PUID}
+            - PGID=${PGID}
+            - TZ=${TZ}
+            - SECRET_ENCRYPTION_KEY=${HOMARR_SECRET_ENCRYPTION_KEY}
+        ports:
+            - 7575:7575
+        networks:
+            - vpn
+        restart: unless-stopped
 
 networks:
     vpn:
