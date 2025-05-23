@@ -33,6 +33,9 @@ cloudflared/*
 homarr/*
 !homarr/.gitkeep
 
+notifiarr/*
+!notifiarr/.gitkeep
+
 # Git already gitignore this folder, but gitignore just in case
 .git/*
 

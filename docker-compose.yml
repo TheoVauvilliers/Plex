@@ -175,6 +175,22 @@ services:
         networks:
             - vpn
         restart: unless-stopped
+    
+    notifiarr:
+        image: golift/notifiarr
+        container_name: notifiarr
+        volumes:
+            - /opt/docker/plex/notifiarr:/config
+        environment:
+            - PUID=${PUID}
+            - PGID=${PGID}
+            - TZ=${TZ}
+            - DN_API_KEY=${NOTIFIARR_API_KEY}
+        ports:
+            - 5454:5454
+        networks:
+            - vpn
+        restart: unless-stopped
 
 networks:
     vpn:
