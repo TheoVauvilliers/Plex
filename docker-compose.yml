@@ -13,6 +13,7 @@ services:
             - /opt/docker/plex/app:/config
             - /mnt/media/series:/series
             - /mnt/media/movies:/movies
+            - /mnt/media/animes:/animes
         devices:
             - /dev/dri:/dev/dri
         restart: unless-stopped
@@ -41,6 +42,7 @@ services:
             - 6881:6881/udp # Torrent UDP
             - 7878:7878 # Radarr WebUI
             - 8989:8989 # Sonarr WebUI
+            - 8990:8990  # Sonarr-Anime WebUI
         networks:
             - vpn
         restart: unless-stopped
@@ -74,6 +76,23 @@ services:
         volumes:
             - /opt/docker/plex/sonarr:/config
             - /mnt/media/series:/series
+            - /mnt/media/downloads:/downloads
+        restart: unless-stopped
+    
+    sonarr-anime:
+        image: lscr.io/linuxserver/sonarr:latest
+        container_name: sonarr-anime
+        network_mode: "service:gluetun"
+        depends_on:
+            - gluetun
+        environment:
+            - PUID=${PUID}
+            - PGID=${PGID}
+            - TZ=${TZ}
+        volumes:
+            - /opt/docker/plex/sonarr-anime:/config
+            - /mnt/media/series:/series # For dummy profil
+            - /mnt/media/animes:/animes
             - /mnt/media/downloads:/downloads
         restart: unless-stopped
 
